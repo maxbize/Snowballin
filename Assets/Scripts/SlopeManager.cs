@@ -11,13 +11,13 @@ public class SlopeManager : MonoBehaviour {
     private SlopeSlice playerSlice;
     public Vector3 toGround { get; private set; } // This doesn't really belong here...
     public Vector3 alongGround { get; private set; } // This doesn't really belong here...
-    private Dictionary<Vector3, SlopeSlice> sliceMap = new Dictionary<Vector3, SlopeSlice>();
+    private Queue<SlopeSlice> slices = new Queue<SlopeSlice>();
 
 	// Use this for initialization
 	void Start () {
         toGround = Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle + 90, 0, 0) * Vector3.forward;
         alongGround = Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle, 0, 0) * Vector3.forward;
-        sliceGen.MakeMeshSlice(null, null, null, null);
+        slices.Enqueue(sliceGen.MakeMeshSlice(null, null, null, null));
 	}
 	
 	// Update is called once per frame
@@ -38,7 +38,13 @@ public class SlopeManager : MonoBehaviour {
             }
             SlopeSlice right = FindSlice(pos + Vector3.right * sliceGen.sliceWidth, 100);
 
-            sliceGen.MakeMeshSlice(null, left, back, right);
+            SlopeSlice oldestSlice = slices.Peek();
+            if ((oldestSlice.transform.position - player.transform.position).magnitude > 20) {
+                slices.Dequeue();
+            } else {
+                oldestSlice = null;
+            }
+            slices.Enqueue(sliceGen.MakeMeshSlice(oldestSlice, left, back, right));
         }
     }
 
@@ -51,10 +57,4 @@ public class SlopeManager : MonoBehaviour {
         }
         return null;
     }
-
-    // Get the slice that's offset from the focus, if it exists
-    private void GetSlice(SlopeSlice focus, Vector3 offset) {
-
-    }
-
 }

@@ -28,20 +28,20 @@ public class SlopeSliceGenerator : MonoBehaviour {
 	}
 
     // back/left/right slice are slices surrounding the new one
-    public SlopeSlice MakeMeshSlice(GameObject existingSlice, SlopeSlice leftSlice, SlopeSlice backSlice, SlopeSlice rightSlice) {
+    public SlopeSlice MakeMeshSlice(SlopeSlice existingSlice, SlopeSlice leftSlice, SlopeSlice backSlice, SlopeSlice rightSlice) {
         int numColumns = (int)(sliceWidth / vertexWidthSpacing) + 1; 
         int numRows = (int)(sliceLength / vertexLengthSpacing) + 1; 
 
-        GameObject slice = existingSlice;
+        SlopeSlice slice = existingSlice;
         if (slice == null) {
-            slice = (GameObject)Instantiate(slopeSlicePrefab);
-            slice.GetComponent<SlopeSlice>().Initialize(numColumns, numRows);
+            slice = ((GameObject)Instantiate(slopeSlicePrefab)).GetComponent<SlopeSlice>();
+            slice.Initialize(numColumns, numRows);
         }
         MeshFilter mf = slice.GetComponent<MeshFilter>();
         Mesh mesh = new Mesh();
         mf.mesh = mesh;
 
-        Vector3[] verts = MakeVertices(numColumns, numRows, slice.GetComponent<SlopeSlice>(), leftSlice, backSlice, rightSlice);
+        Vector3[] verts = MakeVertices(numColumns, numRows, slice, leftSlice, backSlice, rightSlice);
         int[] tris = MakeTris(verts, numColumns, numRows);
         verts = unshareVerts(tris, verts);
         mesh.vertices = verts;
@@ -54,7 +54,7 @@ public class SlopeSliceGenerator : MonoBehaviour {
         slice.transform.rotation = Quaternion.Euler(new Vector3(slopeAngle, 0, 0));
         slice.transform.position = calcSliceOrigin(leftSlice, backSlice, rightSlice);
 
-        return slice.GetComponent<SlopeSlice>();
+        return slice;
     }
 
     private Vector3[] MakeVertices(int numColumns, int numRows, SlopeSlice thisSlice, SlopeSlice leftSlice, SlopeSlice backSlice, SlopeSlice rightSlice) {
