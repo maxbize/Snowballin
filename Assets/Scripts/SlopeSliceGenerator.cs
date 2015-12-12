@@ -8,7 +8,7 @@ using System;
  *  - Only generate enough length to where the player can see (there's going to be fog)
  *  - As the player moves past a slice, move it from the back to the front and regenerate it
  */
-public class SlopeGenerator : MonoBehaviour {
+public class SlopeSliceGenerator : MonoBehaviour {
 
     // Set in editor
     public GameObject slopeSlicePrefab;
@@ -17,30 +17,18 @@ public class SlopeGenerator : MonoBehaviour {
     public float slopeAngle;
     public int sliceWidth;
     public int sliceLength;
-    public int totalLength;
-
 
 	// Use this for initialization
 	void Start () {
-        SlopeSlice slice1 = MakeMeshSlice(null, null, null, null);
-        MakeMeshSlice(null, slice1, null, null);
-        MakeMeshSlice(null, null, slice1, null);
-        MakeMeshSlice(null, null, null, slice1);
         Debug.Log("Hello");
 	}
 	
 	// Update is called once per frame
 	void Update () {
-        HandleSlices();
 	}
 
-    // Generate new slices and recycle old ones
-    private void HandleSlices() {
-    
-    }
-
     // back/left/right slice are slices surrounding the new one
-    private SlopeSlice MakeMeshSlice(GameObject existingSlice, SlopeSlice leftSlice, SlopeSlice backSlice, SlopeSlice rightSlice) {
+    public SlopeSlice MakeMeshSlice(GameObject existingSlice, SlopeSlice leftSlice, SlopeSlice backSlice, SlopeSlice rightSlice) {
         int numColumns = (int)(sliceWidth / vertexWidthSpacing) + 1; 
         int numRows = (int)(sliceLength / vertexLengthSpacing) + 1; 
 
@@ -74,19 +62,31 @@ public class SlopeGenerator : MonoBehaviour {
         for (int i = 0; i < verts.Length; i++) {
             float x = vertexWidthSpacing * (i % numColumns);
             float z = vertexLengthSpacing * (i / numColumns);
-            Vector3 vert = new Vector3(x, UnityEngine.Random.Range(0f, 0.5f) * 0, z);
-            verts[i] = vert;
+            Vector3 vert = new Vector3(x, UnityEngine.Random.Range(0f, 0.5f), z);
 
-            // Record any edges
-            if (i % numColumns == 0) {
+            // Check for any edges
+            if (i % numColumns == 0) { // Left edge
+                if (leftSlice != null) {
+                    vert.y = leftSlice.rightVerts[i / numColumns].y;
+                }
                 thisSlice.leftVerts[i / numColumns] = vert;
-            } else if (i % numColumns == numColumns - 1) {
+            } else if (i % numColumns == numColumns - 1) { // Right edge
+                if (rightSlice != null) {
+                    vert.y = rightSlice.leftVerts[i / numColumns].y;
+                }
                 thisSlice.rightVerts[i / numColumns] = vert;
             } 
             // Can't be an else if - it shares corners with above
-            if (i >= numColumns * (numRows - 1)) {
+            if (i >= numColumns * (numRows - 1)) { // Front edge
                 thisSlice.frontVerts[i - numColumns * (numRows - 1)] = vert;
             }
+            if (i < numColumns) { // Back edge
+                if (backSlice != null) {
+                    vert.y = backSlice.frontVerts[i].y;
+                }
+            }
+
+            verts[i] = vert;
         }
         return verts;
     }
