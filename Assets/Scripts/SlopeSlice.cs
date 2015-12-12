@@ -12,11 +12,15 @@ public class SlopeSlice : MonoBehaviour {
     [HideInInspector]
     public Vector3[] frontVerts;
 
-    // General position of the slice in terms of slices
+    // Neighboring slices
     [HideInInspector]
-    public int x;
+    public SlopeSlice leftSlice;
     [HideInInspector]
-    public int z;
+    public SlopeSlice rightSlice;
+    [HideInInspector]
+    public SlopeSlice backSlice;
+    [HideInInspector]
+    public SlopeSlice frontSlice;
 
 	// Use this for initialization
 	void Start () {

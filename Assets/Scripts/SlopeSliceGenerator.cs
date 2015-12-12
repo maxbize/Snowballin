@@ -54,6 +54,21 @@ public class SlopeSliceGenerator : MonoBehaviour {
         slice.transform.rotation = Quaternion.Euler(new Vector3(slopeAngle, 0, 0));
         slice.transform.position = calcSliceOrigin(leftSlice, backSlice, rightSlice);
 
+        // Update slice graph
+        slice.leftSlice = leftSlice;
+        if (leftSlice != null) {
+            leftSlice.rightSlice = slice;
+        }
+        slice.backSlice = backSlice;
+        if (backSlice != null) {
+            backSlice.frontSlice = slice;
+        }
+        slice.rightSlice = rightSlice;
+        if (rightSlice != null) {
+            rightSlice.leftSlice = slice;
+        }
+        slice.frontSlice = null;
+
         return slice;
     }
 
