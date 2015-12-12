@@ -12,11 +12,13 @@ public class SlopeGenerator : MonoBehaviour {
 
     // Set in editor
     public GameObject slopeSlicePrefab;
-    public float vertexSpacing;
+    public float vertexWidthSpacing;
+    public float vertexLengthSpacing;
+    public float slopeAngle;
 
 	// Use this for initialization
 	void Start () {
-        MakeMeshSlice(15, 5, Vector3.zero, null);
+        MakeMeshSlice(15, 35, new Vector3(-7f,0f,0f), null);
         Debug.Log("Hello");
 	}
 	
@@ -26,29 +28,35 @@ public class SlopeGenerator : MonoBehaviour {
 	}
 
     private void MakeMeshSlice(float width, float length, Vector3 origin, GameObject existingSlice) {
-        if (existingSlice == null) {
-            existingSlice = (GameObject)Instantiate(slopeSlicePrefab);
+        GameObject slice = existingSlice;
+        if (slice == null) {
+            slice = (GameObject)Instantiate(slopeSlicePrefab);
         }
-        MeshFilter mf = existingSlice.GetComponent<MeshFilter>();
+        MeshFilter mf = slice.GetComponent<MeshFilter>();
         Mesh mesh = new Mesh();
         mf.mesh = mesh;
 
-        int numColumns = (int)(width / vertexSpacing);
-        int numRows = (int)(length / vertexSpacing); 
+        int numColumns = (int)(width / vertexWidthSpacing);
+        int numRows = (int)(length / vertexLengthSpacing); 
         Vector3[] verts = MakeVertices(numColumns, numRows, origin);
-    
+        int[] tris = MakeTris(verts, numColumns, numRows);
+        verts = unshareVerts(tris, verts);
         mesh.vertices = verts;
-        mesh.triangles = MakeTris(verts, numColumns, numRows);
-        mesh.RecalculateNormals(); // Not enough time to figure this out
-        mesh.normals = StylizeNormals(mesh.normals);
+        mesh.triangles = tris;
+        mesh.RecalculateNormals();
+        mesh.RecalculateBounds();
+
+        slice.GetComponent<MeshCollider>().sharedMesh = mesh;
+
+        slice.transform.rotation = Quaternion.Euler(new Vector3(slopeAngle, 0, 0));
     }
 
     private Vector3[] MakeVertices(int numColumns, int numRows, Vector3 origin) {
         Vector3[] verts = new Vector3[numColumns * numRows];
         for (int i = 0; i < verts.Length; i++) {
-            float x = vertexSpacing * (i % numColumns);
-            float z = vertexSpacing * (i / numRows);
-            verts[i] = origin + new Vector3(x, UnityEngine.Random.Range(0f,1f), z);
+            float x = vertexWidthSpacing * (i % numColumns);
+            float z = vertexLengthSpacing * (i / numColumns);
+            verts[i] = origin + new Vector3(x, UnityEngine.Random.Range(0f,0.5f), z);
         }
         return verts;
     }
@@ -79,14 +87,14 @@ public class SlopeGenerator : MonoBehaviour {
         return tris;
     }
 
-    // Lets make it look low poly
-    private Vector3[] StylizeNormals(Vector3[] originalNormals) {
-        Vector3[] normals = new Vector3[originalNormals.Length];
-        Array.Copy(originalNormals, normals, normals.Length);
-        for (int i = 0; i < normals.Length; i++) {
-            normals[i] = new Vector3(normals[i].x, normals[i].y * 0.5f, normals[i].z); 
+    private Vector3[] unshareVerts(int[] tris, Vector3[] verts) {
+        // Get rid of soft edges
+        Vector3[] vertices = new Vector3[tris.Length];
+        for (int i = 0; i < tris.Length; i++) {
+            vertices[i] = verts[tris[i]];
+            tris[i] = i;
         }
-        return normals;
+        return vertices;
     }
 
     private Vector2[] MakeUvs(Vector3[] verts) {
