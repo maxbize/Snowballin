@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System;
 
 /*
  * Mesh generation strategy:
@@ -10,11 +11,12 @@ using System.Collections;
 public class SlopeGenerator : MonoBehaviour {
 
     // Set in editor
+    public GameObject slopeSlicePrefab;
     public float vertexSpacing;
 
 	// Use this for initialization
 	void Start () {
-        MakeMeshSlice(3, 3, Vector3.zero);
+        MakeMeshSlice(15, 5, Vector3.zero, null);
         Debug.Log("Hello");
 	}
 	
@@ -23,78 +25,75 @@ public class SlopeGenerator : MonoBehaviour {
 	
 	}
 
-    private void MakeMeshSlice(float width, float length, Vector3 origin) {
-        MakeVertices(width, length, origin);
+    private void MakeMeshSlice(float width, float length, Vector3 origin, GameObject existingSlice) {
+        if (existingSlice == null) {
+            existingSlice = (GameObject)Instantiate(slopeSlicePrefab);
+        }
+        MeshFilter mf = existingSlice.GetComponent<MeshFilter>();
+        Mesh mesh = new Mesh();
+        mf.mesh = mesh;
+
+        int numColumns = (int)(width / vertexSpacing);
+        int numRows = (int)(length / vertexSpacing); 
+        Vector3[] verts = MakeVertices(numColumns, numRows, origin);
+    
+        mesh.vertices = verts;
+        mesh.triangles = MakeTris(verts, numColumns, numRows);
+        mesh.RecalculateNormals(); // Not enough time to figure this out
+        mesh.normals = StylizeNormals(mesh.normals);
     }
 
-    private void MakeVertices(float width, float length, Vector3 origin) {
-        int numColumns = (int)(width / vertexSpacing);
-        int numRows = (int)(length / vertexSpacing);
+    private Vector3[] MakeVertices(int numColumns, int numRows, Vector3 origin) {
         Vector3[] verts = new Vector3[numColumns * numRows];
         for (int i = 0; i < verts.Length; i++) {
             float x = vertexSpacing * (i % numColumns);
             float z = vertexSpacing * (i / numRows);
-            verts[i] = origin + new Vector3(x, 0, z);
+            verts[i] = origin + new Vector3(x, UnityEngine.Random.Range(0f,1f), z);
         }
-        Debug.Log(verts);
+        return verts;
     }
 
-    private void MakeTriangles() {
+    private int[] MakeTris(Vector3[] verts, int numColumns, int numRows) {
+        // # tris needed = number of boxes * 6. Subtract one from cols/rows to account for edges
+        int[] tris = new int[(numColumns - 1) * (numRows - 1) * 6];
+        int lowerLeft = 0;
+        for (int i = 0; i < tris.Length; i += 6) {
+            // Make tris one square at a time. Lower left then upper right tri
+            // 'i' marks lower left corner of square
+            int upperLeft = lowerLeft + numColumns;
 
+            tris[i + 0] = lowerLeft;
+            tris[i + 1] = upperLeft;
+            tris[i + 2] = lowerLeft + 1;
+
+            tris[i + 3] = lowerLeft + 1;
+            tris[i + 4] = upperLeft;
+            tris[i + 5] = upperLeft + 1;
+
+            lowerLeft++;
+            if (lowerLeft % numColumns == numColumns - 1) {
+                lowerLeft++; // We're on the right edge
+            }
+        }
+
+        return tris;
     }
 
-    private void MakeNormals() {
-
+    // Lets make it look low poly
+    private Vector3[] StylizeNormals(Vector3[] originalNormals) {
+        Vector3[] normals = new Vector3[originalNormals.Length];
+        Array.Copy(originalNormals, normals, normals.Length);
+        for (int i = 0; i < normals.Length; i++) {
+            normals[i] = new Vector3(normals[i].x, normals[i].y * 0.5f, normals[i].z); 
+        }
+        return normals;
     }
 
-    private void MakeUvs() {
-
+    private Vector2[] MakeUvs(Vector3[] verts) {
+        Vector2[] uvs = new Vector2[verts.Length];
+        for (int i = 0; i < uvs.Length; i++) {
+            uvs[i] = Vector2.zero;
+        }
+        return uvs;
     }
-
-    /*
-    function Example() {  
-    var mf: MeshFilter = GetComponent.<MeshFilter>();
-    var mesh = new Mesh();
-    mf.mesh = mesh;
-    
-    var vertices: Vector3[] = new Vector3[4];
-    
-    vertices[0] = new Vector3(0, 0, 0);
-    vertices[1] = new Vector3(width, 0, 0);
-    vertices[2] = new Vector3(0, height, 0);
-    vertices[3] = new Vector3(width, height, 0);
-    
-    mesh.vertices = vertices;
-    
-    var tri: int[] = new int[6];
-
-    tri[0] = 0;
-    tri[1] = 2;
-    tri[2] = 1;
-    
-    tri[3] = 2;
-    tri[4] = 3;
-    tri[5] = 1;
-    
-    mesh.triangles = tri;
-    
-    var normals: Vector3[] = new Vector3[4];
-    
-    normals[0] = -Vector3.forward;
-    normals[1] = -Vector3.forward;
-    normals[2] = -Vector3.forward;
-    normals[3] = -Vector3.forward;
-    
-    mesh.normals = normals;
-    
-    var uv: Vector2[] = new Vector2[4];
-
-    uv[0] = new Vector2(0, 0);
-    uv[1] = new Vector2(1, 0);
-    uv[2] = new Vector2(0, 1);
-    uv[3] = new Vector2(1, 1);
-    
-    mesh.uv = uv;
-}
-     */
 }
