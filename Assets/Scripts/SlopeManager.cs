@@ -12,20 +12,14 @@ public class SlopeManager : MonoBehaviour {
     public Vector3 toGround { get; private set; } // This doesn't really belong here...
     public Vector3 alongGround { get; private set; } // This doesn't really belong here...
     private Queue<SlopeSlice> slices = new Queue<SlopeSlice>();
-
-    public enum Dir
-    {
-        LEFT,
-        RIGHT,
-        FRONT,
-        BACK
-    }
+    private Dictionary<Int2, SlopeSlice> sliceMap = new Dictionary<Int2, SlopeSlice>();
 
 	// Use this for initialization
 	void Start () {
         toGround = Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle + 90, 0, 0) * Vector3.forward;
         alongGround = Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle, 0, 0) * Vector3.forward;
-        slices.Enqueue(sliceGen.MakeMeshSlice(null, null, null, null));
+
+        GenSlice(new Int2(0, 0));
 	}
 	
 	// Update is called once per frame
@@ -34,45 +28,47 @@ public class SlopeManager : MonoBehaviour {
         // Check if we reached a new slice and need to generate the next ones
         if (playerSlice != player.currentSlice) {
             playerSlice = player.currentSlice;
-            GenSurroundingSlices(playerSlice, 2);
+            GenSurroundingSlices(playerSlice.pos, 2);
         }
     }
 
-    private void GenSurroundingSlices(SlopeSlice origin, int recursion) {
+    private void GenSurroundingSlices(Int2 origin, int recursion) {
         if (recursion == 0) {
             return;
         }
-        if (origin.frontSlice == null) {
-            SlopeSlice leftSlice = origin.leftSlice == null ? null : origin.leftSlice.frontSlice;
-            SlopeSlice rightSlice = origin.rightSlice == null ? null : origin.rightSlice.frontSlice;
-            GenSlice(leftSlice, origin, rightSlice);
+        if (FindSlice(origin + Int2.front) == null) {
+            GenSlice(origin + Int2.front);
         }
-        if (origin.rightSlice == null) {
-            SlopeSlice backSlice = origin.backSlice == null ? null : origin.backSlice.rightSlice;
-            GenSlice(origin, backSlice, null);
-            GenSurroundingSlices(origin.rightSlice, recursion - 1);
+        if (FindSlice(origin + Int2.right) == null) {
+            GenSlice(origin + Int2.right);
         }
-        if (origin.leftSlice == null) {
-            SlopeSlice backSlice = origin.backSlice == null ? null : origin.backSlice.leftSlice;
-            GenSlice(null, backSlice, origin);
-            GenSurroundingSlices(origin.leftSlice, recursion - 1);
+        if (FindSlice(origin + Int2.left) == null) {
+            GenSlice(origin + Int2.left);
         }
+
         
         // Easier to traverse graph if you delay recursion
-        GenSurroundingSlices(origin.frontSlice, recursion - 1);
-        GenSurroundingSlices(origin.rightSlice, recursion - 1);
-        GenSurroundingSlices(origin.leftSlice, recursion - 1);
+        GenSurroundingSlices(origin + Int2.front, recursion - 1);
+        GenSurroundingSlices(origin + Int2.right, recursion - 1);
+        GenSurroundingSlices(origin + Int2.left, recursion - 1);
     }
 
     // pos just needs to be somewhere on the slice. Generates a slice if none found
-    private void GenSlice(SlopeSlice left, SlopeSlice back, SlopeSlice right) {
-        SlopeSlice oldestSlice = slices.Peek();
-        if ((oldestSlice.transform.position - player.transform.position).magnitude > 20) {
-            slices.Dequeue();
-        } else {
-            oldestSlice = null;
+    private void GenSlice(Int2 pos) {
+        SlopeSlice oldestSlice = null;
+        if (slices.Count > 0) {
+            oldestSlice = slices.Peek();
+            if ((oldestSlice.transform.position - player.transform.position).magnitude > 20) {
+                slices.Dequeue();
+                sliceMap.Remove(oldestSlice.pos);
+            } else {
+                oldestSlice = null;
+            }
         }
-        slices.Enqueue(sliceGen.MakeMeshSlice(oldestSlice, left, back, right));
+        SlopeSlice newSlice = sliceGen.MakeMeshSlice(oldestSlice, FindSlice(pos + Int2.left), FindSlice(pos + Int2.back), FindSlice(pos + Int2.right));
+        slices.Enqueue(newSlice);
+        sliceMap[pos] = newSlice;
+        newSlice.pos = pos;
     }
 
     public SlopeSlice FindSlice(Vector3 origin, float distance) {
@@ -81,6 +77,13 @@ public class SlopeManager : MonoBehaviour {
             return hit.transform.GetComponent<SlopeSlice>();
         } else if (Physics.Raycast(origin, -1 * (toGround * distance), out hit)) {
             return hit.transform.GetComponent<SlopeSlice>();
+        }
+        return null;
+    }
+
+    public SlopeSlice FindSlice(Int2 pos) {
+        if (sliceMap.ContainsKey(pos)) {
+            return sliceMap[pos];
         }
         return null;
     }
