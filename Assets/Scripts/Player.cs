@@ -15,10 +15,12 @@ public class Player : MonoBehaviour {
     private Rigidbody rb;
     public SlopeSlice currentSlice { get; private set; }
     private bool grounded = false;
+    private float minScale;
 
 	// Use this for initialization
 	void Start () {
         rb = GetComponent<Rigidbody>();
+        minScale = transform.localScale.x;
 	}
 	
 	// Update is called once per frame
@@ -55,5 +57,22 @@ public class Player : MonoBehaviour {
 
         rb.AddForce((input * moveSpeed * rb.mass + Vector3.forward * moveSpeed) * Time.deltaTime);
     }
+
+    void OnTriggerEnter(Collider other) {
+        Obstacle obstacle = other.GetComponent<Obstacle>();
+        if (obstacle != null) {
+            float scaleDif = obstacle.gameObject.transform.localScale.magnitude - transform.localScale.magnitude;
+            // Scale != size. This only works if we import things to Unity to be size 1 at scale 1
+            if (scaleDif > 0) {
+                transform.localScale -= Vector3.one * scaleDif / 2;
+                if (transform.localScale.magnitude < minScale || transform.localScale.x < 0) {
+                    transform.localScale = Vector3.one * minScale;
+                }
+            } else {
+                transform.localScale += Vector3.one * obstacle.transform.localScale.magnitude / 10;
+            }
+        }
+    }
+
 
 }
