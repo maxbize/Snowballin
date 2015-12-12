@@ -1,11 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class PlayerController : MonoBehaviour {
+/*
+ * Player can grow by rolling down the hill and collecting objects that are smaller
+ * Hitting a larger object causes player to lose mass
+ */
+public class Player : MonoBehaviour {
 
     // Set in editor
     public float moveSpeed;
     public SlopeManager slopeManager;
+    public float growthRate;
 
     private Rigidbody rb;
     public SlopeSlice currentSlice { get; private set; }
@@ -18,9 +23,16 @@ public class PlayerController : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
+        if (grounded) {
+            Grow();
+        }
         CheckGrounded();
         Move();
 	}
+
+    private void Grow() {
+        transform.localScale += Vector3.one * growthRate * Time.deltaTime;
+    }
 
     private void CheckGrounded() {
         SlopeSlice slice = slopeManager.FindSlice(transform.position, transform.localScale.magnitude * 1.1f);
@@ -41,7 +53,7 @@ public class PlayerController : MonoBehaviour {
             input -= Vector3.right;
         }
 
-        rb.AddForce(input * moveSpeed * rb.mass + Vector3.forward * moveSpeed);
+        rb.AddForce((input * moveSpeed * rb.mass + Vector3.forward * moveSpeed) * Time.deltaTime);
     }
 
 }

@@ -6,7 +6,7 @@ public class SlopeManager : MonoBehaviour {
 
     // Set in Editor
     public SlopeSliceGenerator sliceGen;
-    public PlayerController player;
+    public Player player;
     public ObstacleManager obstacleManager;
 
     private SlopeSlice playerSlice;
