@@ -7,6 +7,7 @@ public class SlopeManager : MonoBehaviour {
     // Set in Editor
     public SlopeSliceGenerator sliceGen;
     public PlayerController player;
+    public ObstacleManager obstacleManager;
 
     private SlopeSlice playerSlice;
     public Vector3 toGround { get; private set; } // This doesn't really belong here...
@@ -61,6 +62,7 @@ public class SlopeManager : MonoBehaviour {
             if ((oldestSlice.transform.position - player.transform.position).magnitude > 20) {
                 slices.Dequeue();
                 sliceMap.Remove(oldestSlice.pos);
+                obstacleManager.HandleRecycledSlice(oldestSlice);
             } else {
                 oldestSlice = null;
             }
@@ -69,6 +71,8 @@ public class SlopeManager : MonoBehaviour {
         slices.Enqueue(newSlice);
         sliceMap[pos] = newSlice;
         newSlice.pos = pos;
+
+        obstacleManager.HandleNewSlice(newSlice);
     }
 
     public SlopeSlice FindSlice(Vector3 origin, float distance) {

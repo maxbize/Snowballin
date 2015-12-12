@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour {
             input -= Vector3.right;
         }
 
-        rb.AddForce(input * moveSpeed * rb.mass);
+        rb.AddForce(input * moveSpeed * rb.mass + Vector3.forward * moveSpeed);
     }
 
 }
