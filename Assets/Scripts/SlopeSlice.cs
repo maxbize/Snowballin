@@ -20,16 +20,17 @@ public class SlopeSlice : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        SlopeGenerator slopeGenerator = FindObjectOfType<SlopeGenerator>();
 
-        // Hack alert below
-        leftVerts = new Vector3[(int)(slopeGenerator.sliceWidth / slopeGenerator.vertexWidthSpacing)];
-        rightVerts = new Vector3[(int)(slopeGenerator.sliceWidth / slopeGenerator.vertexWidthSpacing)];
-        frontVerts = new Vector3[(int)(slopeGenerator.sliceLength / slopeGenerator.vertexLengthSpacing)];
     }
 	
 	// Update is called once per frame
 	void Update () {
 	
 	}
+
+    public void Initialize(int numColumns, int numRows) {
+        leftVerts = new Vector3[numRows];
+        rightVerts = new Vector3[numRows];
+        frontVerts = new Vector3[numColumns];
+    }
 }
