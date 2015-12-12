@@ -63,7 +63,7 @@ public class SlopeGenerator : MonoBehaviour {
 
         slice.GetComponent<MeshCollider>().sharedMesh = mesh;
 
-        //slice.transform.rotation = Quaternion.Euler(new Vector3(slopeAngle, 0, 0));
+        slice.transform.rotation = Quaternion.Euler(new Vector3(slopeAngle, 0, 0));
         slice.transform.position = calcSliceOrigin(leftSlice, backSlice, rightSlice);
 
         return slice.GetComponent<SlopeSlice>();
@@ -94,13 +94,10 @@ public class SlopeGenerator : MonoBehaviour {
     private Vector3 calcSliceOrigin(SlopeSlice leftSlice, SlopeSlice backSlice, SlopeSlice rightSlice) {
         if (leftSlice != null) {
             return leftSlice.gameObject.transform.position + Vector3.right * sliceWidth;
-            //return leftSlice.rightVerts[0];
         } else if (backSlice != null) {
-            return backSlice.gameObject.transform.position + Vector3.forward * sliceLength;
-            //return backSlice.leftVerts[backSlice.leftVerts.Length - 1];
+            return backSlice.gameObject.transform.position + backSlice.transform.forward * sliceLength;
         } else if (rightSlice != null) {
             return rightSlice.gameObject.transform.position - Vector3.right * sliceWidth;
-            //return rightSlice.leftVerts[0] - Vector3.right * sliceWidth;
         } else {
             return new Vector3(-sliceWidth / 2, 0f, 0f);
         }
