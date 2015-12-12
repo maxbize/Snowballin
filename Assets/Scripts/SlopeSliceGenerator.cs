@@ -69,6 +69,10 @@ public class SlopeSliceGenerator : MonoBehaviour {
         }
         slice.frontSlice = null;
 
+        // Set slice position and target
+        slice.GetComponent<LerpToTarget>().target = slice.transform.position;
+        slice.transform.position -= Vector3.up * 10f;
+
         return slice;
     }
 
@@ -108,11 +112,11 @@ public class SlopeSliceGenerator : MonoBehaviour {
 
     private Vector3 calcSliceOrigin(SlopeSlice leftSlice, SlopeSlice backSlice, SlopeSlice rightSlice) {
         if (leftSlice != null) {
-            return leftSlice.gameObject.transform.position + Vector3.right * sliceWidth;
+            return leftSlice.GetComponent<LerpToTarget>().target + Vector3.right * sliceWidth;
         } else if (backSlice != null) {
-            return backSlice.gameObject.transform.position + backSlice.transform.forward * sliceLength;
+            return backSlice.GetComponent<LerpToTarget>().target + backSlice.transform.forward * sliceLength;
         } else if (rightSlice != null) {
-            return rightSlice.gameObject.transform.position - Vector3.right * sliceWidth;
+            return rightSlice.GetComponent<LerpToTarget>().target - Vector3.right * sliceWidth;
         } else {
             return new Vector3(-sliceWidth / 2, 0f, 0f);
         }
