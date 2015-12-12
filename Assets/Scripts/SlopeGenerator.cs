@@ -15,19 +15,29 @@ public class SlopeGenerator : MonoBehaviour {
     public float vertexWidthSpacing;
     public float vertexLengthSpacing;
     public float slopeAngle;
+    public float sliceWidth;
+    public float sliceLength;
+    public float totalLength;
+
 
 	// Use this for initialization
 	void Start () {
-        MakeMeshSlice(15, 35, new Vector3(-7f,0f,0f), null);
+        MakeMeshSlice(null, null, null, null);
         Debug.Log("Hello");
 	}
 	
 	// Update is called once per frame
 	void Update () {
-	
+        HandleSlices();
 	}
 
-    private void MakeMeshSlice(float width, float length, Vector3 origin, GameObject existingSlice) {
+    // Generate new slices and recycle old ones
+    private void HandleSlices() {
+    
+    }
+
+    // back/left/right slice are slices surrounding the new one
+    private void MakeMeshSlice(GameObject existingSlice, SlopeSlice leftSlice, SlopeSlice backSlice, SlopeSlice rightSlice) {
         GameObject slice = existingSlice;
         if (slice == null) {
             slice = (GameObject)Instantiate(slopeSlicePrefab);
@@ -36,9 +46,10 @@ public class SlopeGenerator : MonoBehaviour {
         Mesh mesh = new Mesh();
         mf.mesh = mesh;
 
-        int numColumns = (int)(width / vertexWidthSpacing);
-        int numRows = (int)(length / vertexLengthSpacing); 
-        Vector3[] verts = MakeVertices(numColumns, numRows, origin);
+        int numColumns = (int)(sliceWidth / vertexWidthSpacing); // If you update this logic, update hack in SlopeSlice.Start()
+        int numRows = (int)(sliceLength / vertexLengthSpacing); // If you update this logic, update hack in SlopeSlice.Start()
+
+        Vector3[] verts = MakeVertices(numColumns, numRows, slice.GetComponent<SlopeSlice>(), leftSlice, backSlice, rightSlice);
         int[] tris = MakeTris(verts, numColumns, numRows);
         verts = unshareVerts(tris, verts);
         mesh.vertices = verts;
@@ -51,14 +62,37 @@ public class SlopeGenerator : MonoBehaviour {
         slice.transform.rotation = Quaternion.Euler(new Vector3(slopeAngle, 0, 0));
     }
 
-    private Vector3[] MakeVertices(int numColumns, int numRows, Vector3 origin) {
+    private Vector3[] MakeVertices(int numColumns, int numRows, SlopeSlice thisSlice, SlopeSlice leftSlice, SlopeSlice backSlice, SlopeSlice rightSlice) {
+        Vector3 origin = calcSliceOrigin(leftSlice, backSlice, rightSlice);
         Vector3[] verts = new Vector3[numColumns * numRows];
         for (int i = 0; i < verts.Length; i++) {
             float x = vertexWidthSpacing * (i % numColumns);
             float z = vertexLengthSpacing * (i / numColumns);
-            verts[i] = origin + new Vector3(x, UnityEngine.Random.Range(0f,0.5f), z);
+            Vector3 vert = origin + new Vector3(x, UnityEngine.Random.Range(0f, 0.5f), z);
+            verts[i] = vert;
+
+            // Record any edges
+            if (i % numColumns == 0) {
+                thisSlice.leftVerts[i % numColumns] = vert;
+            } else if (i % numColumns == numColumns - 1) {
+                thisSlice.rightVerts[i % numColumns] = vert;
+            } else if (i > numColumns * (numRows - 1)) {
+                thisSlice.frontVerts[i - numColumns * (numRows - 1)] = vert;
+            }
         }
         return verts;
+    }
+
+    private Vector3 calcSliceOrigin(SlopeSlice leftSlice, SlopeSlice backSlice, SlopeSlice rightSlice) {
+        if (leftSlice != null) {
+            return leftSlice.rightVerts[0];
+        } else if (backSlice != null) {
+            return backSlice.leftVerts[backSlice.leftVerts.Length - 1];
+        } else if (rightSlice != null) {
+            return rightSlice.leftVerts[0] - Vector3.right * sliceWidth;
+        } else {
+            return new Vector3(-sliceWidth / 2, 0f, 0f);
+        }
     }
 
     private int[] MakeTris(Vector3[] verts, int numColumns, int numRows) {
