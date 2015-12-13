@@ -20,7 +20,6 @@ public class Player : MonoBehaviour {
     public Vector3 targetScale { get; private set; }
 
     private Rigidbody rb;
-    public SlopeSlice currentSlice { get; private set; }
     private bool grounded = false;
     private float minScale;
 
@@ -52,7 +51,6 @@ public class Player : MonoBehaviour {
             snowTrail.enableEmission = false;
         } else {
             grounded = true;
-            currentSlice = slice;
             snowTrail.enableEmission = true;
         }
     }
@@ -93,7 +91,7 @@ public class Player : MonoBehaviour {
 
     private void ImpactObstacle(Obstacle obstacle) {
         Instantiate(impactPrefab, transform.position, Quaternion.identity);
-        targetScale -= Vector3.one * Mathf.Sqrt(obstacle.transform.localScale.magnitude) / 1;
+        targetScale *= 0.8f;
         if (targetScale.x < minScale) {
             targetScale = Vector3.one * minScale;
         }
