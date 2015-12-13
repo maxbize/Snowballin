@@ -14,11 +14,13 @@ public class SlopeManager : MonoBehaviour {
     public Vector3 alongGround { get; private set; } // This doesn't really belong here...
     private Queue<SlopeSlice> slices = new Queue<SlopeSlice>();
     private Dictionary<Int2, SlopeSlice> sliceMap = new Dictionary<Int2, SlopeSlice>();
+    private Rigidbody playerRb;
 
 	// Use this for initialization
 	void Start () {
         toGround = Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle + 90, 0, 0) * Vector3.forward;
         alongGround = Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle, 0, 0) * Vector3.forward;
+        playerRb = player.GetComponent<Rigidbody>();
 
         GenSlice(new Int2(0, 0));
 	}
@@ -29,7 +31,9 @@ public class SlopeManager : MonoBehaviour {
         // Check if we reached a new slice and need to generate the next ones
         if (playerSlice != player.currentSlice) {
             playerSlice = player.currentSlice;
-            GenSurroundingSlices(playerSlice.pos, 2);
+            int recursion = Mathf.CeilToInt(playerRb.velocity.magnitude / 8);
+            GenSurroundingSlices(playerSlice.pos, recursion);
+            Debug.Log("Generated at player speed " + playerRb.velocity.magnitude + " with recursion " + recursion);
         }
     }
 
