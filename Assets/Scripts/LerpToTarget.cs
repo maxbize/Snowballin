@@ -12,7 +12,7 @@ public class LerpToTarget : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-	
+        lerpRate *= Random.Range(0.2f, 2f);
 	}
 	
 	// Update is called once per frame

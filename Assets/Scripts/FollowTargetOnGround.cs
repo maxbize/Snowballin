@@ -18,5 +18,6 @@ public class FollowTargetOnGround : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         transform.position = target.transform.position + toGround * target.transform.localScale.magnitude / 4;
+        transform.localScale = target.transform.localScale;
 	}
 }

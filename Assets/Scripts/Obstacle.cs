@@ -47,7 +47,7 @@ public class Obstacle : MonoBehaviour {
 
     // We've detached or been hit by something smaller
     public void Blast(float playerVel) {
-        Invoke("Die", 5);
+        Invoke("Die", 10);
         Vector3 detachedVel = Random.onUnitSphere;
         rb.angularVelocity = detachedVel * 2;
         if (detachedVel.y < 0) {

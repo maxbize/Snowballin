@@ -97,7 +97,7 @@ public class Player : MonoBehaviour {
     }
 
     private void ImpactObstacle(Obstacle obstacle) {
-        Instantiate(impactPrefab, transform.position, Quaternion.identity);
+        ((GameObject)Instantiate(impactPrefab, transform.position, Quaternion.identity)).transform.localScale = transform.localScale / 4;
         if (invulnTimer <= 0) {
             targetScale *= 0.9f;
         }
