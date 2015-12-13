@@ -18,18 +18,17 @@ public class Player : MonoBehaviour {
     public GameObject impactPrefab;
     public float invulnTime;
     public float maxScale;
+    public float minScale;
 
     public Vector3 targetScale { get; private set; }
 
     private Rigidbody rb;
     private bool grounded = false;
-    private float minScale;
     private float invulnTimer = 0;
 
 	// Use this for initialization
 	void Start () {
         rb = GetComponent<Rigidbody>();
-        minScale = transform.localScale.x;
         targetScale = transform.localScale;
 	}
 	
@@ -40,8 +39,15 @@ public class Player : MonoBehaviour {
         }
         CheckGrounded();
         Move();
-        transform.localScale += (targetScale.magnitude - transform.localScale.magnitude) / 20 * Vector3.one;
+        transform.localScale += (targetScale.magnitude - transform.localScale.magnitude) / 200 * Vector3.one;
         invulnTimer -= Time.deltaTime;
+
+        if (targetScale.x < minScale) {
+            targetScale = Vector3.one * minScale;
+        }
+        if (targetScale.x > maxScale) {
+            targetScale = Vector3.one * maxScale;
+        }
     }
 
     private void Grow() {
@@ -90,9 +96,6 @@ public class Player : MonoBehaviour {
 
     private void AbsorbObstacle(Obstacle obstacle) {
         targetScale += Vector3.one * Mathf.Sqrt(obstacle.transform.localScale.magnitude) / 10;
-        if (targetScale.x > maxScale) {
-            targetScale = Vector3.one * maxScale;
-        }
         obstacle.Attach(this);
     }
 
@@ -102,9 +105,6 @@ public class Player : MonoBehaviour {
             targetScale *= 0.9f;
         }
         invulnTimer = invulnTime; // Being nice :)
-        if (targetScale.x < minScale) {
-            targetScale = Vector3.one * minScale;
-        }
         obstacle.Blast(rb.velocity.magnitude);
         foreach (Obstacle childObstacle in GetComponentsInChildren<Obstacle>()) {
             childObstacle.CheckDetach();
