@@ -20,7 +20,7 @@ public class Int2 {
     }
 
     public override int GetHashCode() {
-        return x * 31 + z;
+        return z * 31 + x;
     }
 
     public override bool Equals(object obj) {

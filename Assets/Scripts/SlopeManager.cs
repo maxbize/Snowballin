@@ -77,7 +77,9 @@ public class SlopeManager : MonoBehaviour {
         sliceMap[pos] = newSlice;
         newSlice.pos = pos;
 
-        obstacleManager.HandleNewSlice(newSlice);
+        if (pos.x != 0 || pos.z != 0) {
+            obstacleManager.HandleNewSlice(newSlice);
+        }
     }
 
     public SlopeSlice FindSlice(Vector3 origin, float distance) {

@@ -17,6 +17,7 @@ public class SlopeSliceGenerator : MonoBehaviour {
     public float slopeAngle;
     public int sliceWidth;
     public int sliceLength;
+    public Player player;
 
 	// Use this for initialization
 	void Start () {
@@ -104,7 +105,7 @@ public class SlopeSliceGenerator : MonoBehaviour {
         } else if (rightSlice != null) {
             return rightSlice.GetComponent<LerpToTarget>().target - Vector3.right * sliceWidth;
         } else {
-            return new Vector3(-sliceWidth / 2, 0f, 0f);
+            return player.transform.position - Vector3.right * sliceWidth / 2 - Vector3.forward * sliceLength / 2;
         }
     }
 
