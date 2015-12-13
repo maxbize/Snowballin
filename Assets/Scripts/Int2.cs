@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 
+// Should have just used some kind of built-in Pair class...
 // Utility class for storing ints
 public class Int2 {
     public int x;
