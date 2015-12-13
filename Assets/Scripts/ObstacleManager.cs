@@ -6,6 +6,7 @@ public class ObstacleManager : MonoBehaviour {
 
     // Set in editor
     public List<GameObject> obstaclePrefabs;
+    public SlopeSliceGenerator sliceGen;
 
 	// Use this for initialization
 	void Start () {
@@ -17,12 +18,19 @@ public class ObstacleManager : MonoBehaviour {
 	    
 	}
 
-    // 
+    // New slice spawn
     public void HandleNewSlice(SlopeSlice slice) {
-        GameObject obstacle = (GameObject)Instantiate(obstaclePrefabs[Random.Range(0, obstaclePrefabs.Count)]);
-        obstacle.transform.parent = slice.transform;
-        obstacle.transform.localPosition = Vector3.up / 2;
-        obstacle.transform.localScale *= Random.Range(1, 4);
+        for (int i = 0; i < 3; i++) {
+            GameObject obstacle = (GameObject)Instantiate(obstaclePrefabs[Random.Range(0, obstaclePrefabs.Count)]);
+            obstacle.transform.parent = slice.transform;
+            Vector3 pos = Vector3.zero;
+            pos.x = Random.Range(0f, sliceGen.sliceWidth);
+            pos.y = 1f / 2f;
+            pos.z = Random.Range(0f, sliceGen.sliceLength);
+            obstacle.transform.localPosition = pos;            
+            obstacle.transform.localScale *= Random.Range(1, 4);
+            obstacle.transform.rotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
+        }
     }
 
     // Clear all obstacles when recycling
