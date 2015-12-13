@@ -64,15 +64,22 @@ public class Player : MonoBehaviour {
             float scaleDif = obstacle.gameObject.transform.localScale.magnitude - transform.localScale.magnitude;
             // Scale != size. This only works if we import things to Unity to be size 1 at scale 1
             if (scaleDif > 0) {
-                transform.localScale -= Vector3.one * scaleDif / 2;
-                if (transform.localScale.magnitude < minScale || transform.localScale.x < 0) {
-                    transform.localScale = Vector3.one * minScale;
-                }
+                ImpactObstacle(obstacle);
             } else {
-                transform.localScale += Vector3.one * obstacle.transform.localScale.magnitude / 10;
+                AbsorbObstacle(obstacle);
             }
         }
     }
 
+    private void AbsorbObstacle(Obstacle obstacle) {
+        transform.localScale += Vector3.one * obstacle.transform.localScale.magnitude / 10;
+        obstacle.Attach(gameObject);
+    }
 
+    private void ImpactObstacle(Obstacle obstacle) {
+        transform.localScale -= Vector3.one * obstacle.transform.localScale.magnitude / 5;
+        if (transform.localScale.x < minScale) {
+            transform.localScale = Vector3.one * minScale;
+        }
+    }
 }
