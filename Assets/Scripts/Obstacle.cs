@@ -20,7 +20,7 @@ public class Obstacle : MonoBehaviour {
             transform.localScale = Vector3.one * originalScale / transform.parent.localScale.magnitude;
             transform.position = player.transform.position + (transform.position - player.transform.position).normalized * originalDistance;
         } else if (detachedVel != Vector3.zero) {
-            detachedVel -= Vector3.up * Time.deltaTime;
+            detachedVel += Physics.gravity * Time.deltaTime;
             transform.position += detachedVel * Time.deltaTime;
         }
     }
@@ -39,14 +39,23 @@ public class Obstacle : MonoBehaviour {
     public void CheckDetach() {
         if (player.targetScale.magnitude < originalPlayerScale.magnitude) {
             transform.parent = null;
-            Invoke("Die", 5);
-            detachedVel = Random.onUnitSphere;
-            if (detachedVel.y < 0) {
-                detachedVel.y = -detachedVel.y;
-            }
-            detachedVel *= Random.Range(3f, 5f);
             player = null;
+            Blast();
         }
+    }
+
+    // We've detached or been hit by something smaller
+    public void Blast() {
+        Invoke("Die", 5);
+        detachedVel = Random.onUnitSphere;
+        if (detachedVel.y < 0) {
+            detachedVel.y = -detachedVel.y;
+        }
+        if (detachedVel.z < 0) {
+            detachedVel.z = -detachedVel.z;
+        }
+        detachedVel.z += 3f;
+        detachedVel *= Random.Range(3f, 5f);
     }
 
     private void Die() {

@@ -8,7 +8,10 @@ using System.Collections;
 public class Player : MonoBehaviour {
 
     // Set in editor
-    public float moveSpeed;
+    public float forwardSpeed;
+    public float forwardDrag;
+    public float sideSpeed;
+    public float sideDrag;
     public SlopeManager slopeManager;
     public float growthRate;
 
@@ -50,16 +53,20 @@ public class Player : MonoBehaviour {
         }
     }
 
+    // For simplicity we assume z is forward, even though it should be z rotated down by the slope angle
     private void Move() {
-        Vector3 input = Vector3.zero;
+        Vector3 force = Vector3.zero;
         if (Input.GetKey(KeyCode.RightArrow)) {
-            input += Vector3.right;
+            force += Vector3.right * sideSpeed;
         }
         if (Input.GetKey(KeyCode.LeftArrow)) {
-            input -= Vector3.right;
+            force -= Vector3.right * sideSpeed;
         }
+        force -= rb.velocity.x * rb.velocity.x * sideDrag * Vector3.right * Mathf.Sign(rb.velocity.x);
 
-        rb.AddForce((input * moveSpeed * rb.mass + Vector3.forward * moveSpeed) * Time.deltaTime);
+        force += (forwardSpeed - rb.velocity.z * rb.velocity.z * forwardDrag) * Vector3.forward;
+
+        rb.AddForce(force * Time.deltaTime);
     }
 
     void OnTriggerEnter(Collider other) {
@@ -85,6 +92,7 @@ public class Player : MonoBehaviour {
         if (targetScale.x < minScale) {
             targetScale = Vector3.one * minScale;
         }
+        obstacle.Blast();
         foreach (Obstacle childObstacle in GetComponentsInChildren<Obstacle>()) {
             childObstacle.CheckDetach();
         }
