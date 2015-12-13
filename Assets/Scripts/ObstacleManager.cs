@@ -59,7 +59,7 @@ public class ObstacleManager : MonoBehaviour {
         obstacle.transform.rotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
     }
 
-    // Clear all obstacles when recycling
+    // Clear all obstacles when recycling. Could optimize this game by using object pooling here instead of destroying
     public void HandleRecycledSlice(SlopeSlice slice) {
         foreach (Obstacle obstacle in slice.gameObject.GetComponentsInChildren<Obstacle>()) {
             Destroy(obstacle.gameObject);

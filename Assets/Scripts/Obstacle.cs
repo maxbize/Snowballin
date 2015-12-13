@@ -3,7 +3,7 @@ using System.Collections;
 
 public class Obstacle : MonoBehaviour {
 
-    private float originalScale;
+    private Vector3 originalScale;
     private float originalDistance;
     private Vector3 originalPlayerScale;
     private Player player;
@@ -17,14 +17,14 @@ public class Obstacle : MonoBehaviour {
 	// Update is called once per frame
     void Update() {
         if (player != null) {
-            transform.localScale = Vector3.one * originalScale / transform.parent.localScale.magnitude;
+            transform.localScale = originalScale / transform.parent.localScale.magnitude;
             transform.position = player.transform.position + (transform.position - player.transform.position).normalized * originalDistance;
         }
     }
 
     public void Attach(Player player) {
         this.player = player;
-        originalScale = transform.localScale.magnitude;
+        originalScale = transform.localScale;
         originalDistance = (player.transform.position - transform.position).magnitude * 0.8f;
         transform.parent = player.transform;
         originalPlayerScale = player.targetScale;
