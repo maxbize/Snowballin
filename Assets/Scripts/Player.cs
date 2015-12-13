@@ -12,6 +12,8 @@ public class Player : MonoBehaviour {
     public SlopeManager slopeManager;
     public float growthRate;
 
+    public Vector3 targetScale { get; private set; }
+
     private Rigidbody rb;
     public SlopeSlice currentSlice { get; private set; }
     private bool grounded = false;
@@ -21,6 +23,7 @@ public class Player : MonoBehaviour {
 	void Start () {
         rb = GetComponent<Rigidbody>();
         minScale = transform.localScale.x;
+        targetScale = transform.localScale;
 	}
 	
 	// Update is called once per frame
@@ -33,7 +36,8 @@ public class Player : MonoBehaviour {
 	}
 
     private void Grow() {
-        transform.localScale += Vector3.one * growthRate * Time.deltaTime;
+        targetScale += Vector3.one * growthRate * Time.deltaTime;
+        transform.localScale += (targetScale - transform.localScale).magnitude / 10 * Vector3.one;
     }
 
     private void CheckGrounded() {
@@ -61,7 +65,7 @@ public class Player : MonoBehaviour {
     void OnTriggerEnter(Collider other) {
         Obstacle obstacle = other.GetComponent<Obstacle>();
         if (obstacle != null) {
-            float scaleDif = obstacle.gameObject.transform.localScale.magnitude - transform.localScale.magnitude;
+            float scaleDif = obstacle.gameObject.transform.localScale.magnitude - targetScale.magnitude;
             // Scale != size. This only works if we import things to Unity to be size 1 at scale 1
             if (scaleDif > 0) {
                 ImpactObstacle(obstacle);
@@ -72,12 +76,12 @@ public class Player : MonoBehaviour {
     }
 
     private void AbsorbObstacle(Obstacle obstacle) {
-        transform.localScale += Vector3.one * obstacle.transform.localScale.magnitude / 10;
+        targetScale += Vector3.one * obstacle.transform.localScale.magnitude / 10;
         obstacle.Attach(gameObject);
     }
 
     private void ImpactObstacle(Obstacle obstacle) {
-        transform.localScale -= Vector3.one * obstacle.transform.localScale.magnitude / 5;
+        targetScale -= Vector3.one * obstacle.transform.localScale.magnitude / 5;
         if (transform.localScale.x < minScale) {
             transform.localScale = Vector3.one * minScale;
         }
