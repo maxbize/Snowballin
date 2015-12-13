@@ -17,6 +17,7 @@ public class Player : MonoBehaviour {
     public ParticleSystem snowTrail;
     public GameObject impactPrefab;
     public float invulnTime;
+    public float maxScale;
 
     public Vector3 targetScale { get; private set; }
 
@@ -39,7 +40,7 @@ public class Player : MonoBehaviour {
         }
         CheckGrounded();
         Move();
-        transform.localScale += (targetScale.magnitude - transform.localScale.magnitude) / 10 * Vector3.one;
+        transform.localScale += (targetScale.magnitude - transform.localScale.magnitude) / 20 * Vector3.one;
         invulnTimer -= Time.deltaTime;
     }
 
@@ -89,6 +90,9 @@ public class Player : MonoBehaviour {
 
     private void AbsorbObstacle(Obstacle obstacle) {
         targetScale += Vector3.one * Mathf.Sqrt(obstacle.transform.localScale.magnitude) / 10;
+        if (targetScale.x > maxScale) {
+            targetScale = Vector3.one * maxScale;
+        }
         obstacle.Attach(this);
     }
 
