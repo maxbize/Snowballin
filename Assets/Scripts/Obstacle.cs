@@ -26,7 +26,7 @@ public class Obstacle : MonoBehaviour {
     public void Attach(Player player) {
         this.player = player;
         originalScale = transform.localScale.magnitude;
-        originalDistance = (player.transform.position - transform.position).magnitude;
+        originalDistance = (player.transform.position - transform.position).magnitude * 0.8f;
         transform.parent = player.transform;
         GetComponent<Collider>().enabled = false;
         originalPlayerScale = player.targetScale;

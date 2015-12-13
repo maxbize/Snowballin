@@ -18,8 +18,8 @@ public class SlopeManager : MonoBehaviour {
 
 	// Use this for initialization
 	void Start () {
-        toGround = Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle + 90, 0, 0) * Vector3.forward;
-        alongGround = Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle, 0, 0) * Vector3.forward;
+        toGround = (Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle + 90, 0, 0) * Vector3.forward).normalized;
+        alongGround = (Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle, 0, 0) * Vector3.forward).normalized;
         playerRb = player.GetComponent<Rigidbody>();
 
         GenSlice(new Int2(0, 0));
@@ -63,7 +63,7 @@ public class SlopeManager : MonoBehaviour {
         SlopeSlice oldestSlice = null;
         if (slices.Count > 0) {
             oldestSlice = slices.Peek();
-            if ((oldestSlice.transform.position - player.transform.position).magnitude > 20) {
+            if ((oldestSlice.transform.position - player.transform.position).magnitude > sliceGen.sliceLength * 1.5f) {
                 slices.Dequeue();
                 sliceMap.Remove(oldestSlice.pos);
                 obstacleManager.HandleRecycledSlice(oldestSlice);
@@ -80,10 +80,12 @@ public class SlopeManager : MonoBehaviour {
     }
 
     public SlopeSlice FindSlice(Vector3 origin, float distance) {
+        Debug.DrawRay(origin, toGround * distance, Color.red);
+        Debug.DrawRay(origin, -1 * (toGround * distance), Color.blue);
         RaycastHit hit;
-        if (Physics.Raycast(origin, toGround * distance, out hit)) {
+        if (Physics.Raycast(origin, toGround, out hit, distance)) {
             return hit.transform.GetComponent<SlopeSlice>();
-        } else if (Physics.Raycast(origin, -1 * (toGround * distance), out hit)) {
+        } else if (Physics.Raycast(origin, -toGround, out hit)) {
             return hit.transform.GetComponent<SlopeSlice>();
         }
         return null;

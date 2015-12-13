@@ -14,6 +14,7 @@ public class Player : MonoBehaviour {
     public float sideDrag;
     public SlopeManager slopeManager;
     public float growthRate;
+    public ParticleSystem snowTrail;
 
     public Vector3 targetScale { get; private set; }
 
@@ -36,20 +37,22 @@ public class Player : MonoBehaviour {
         }
         CheckGrounded();
         Move();
-	}
-
-    private void Grow() {
-        targetScale += Vector3.one * growthRate * Time.deltaTime;
         transform.localScale += (targetScale.magnitude - transform.localScale.magnitude) / 10 * Vector3.one;
     }
 
+    private void Grow() {
+        targetScale += Vector3.one * growthRate * Time.deltaTime;
+    }
+
     private void CheckGrounded() {
-        SlopeSlice slice = slopeManager.FindSlice(transform.position, transform.localScale.magnitude * 1.1f);
+        SlopeSlice slice = slopeManager.FindSlice(transform.position, transform.localScale.y / 2 + 0.1f);
         if (slice == null) {
             grounded = false;
+            snowTrail.enableEmission = false;
         } else {
             grounded = true;
             currentSlice = slice;
+            snowTrail.enableEmission = true;
         }
     }
 
@@ -83,12 +86,12 @@ public class Player : MonoBehaviour {
     }
 
     private void AbsorbObstacle(Obstacle obstacle) {
-        targetScale += Vector3.one * obstacle.transform.localScale.magnitude / 10;
+        targetScale += Vector3.one * Mathf.Sqrt(obstacle.transform.localScale.magnitude) / 5;
         obstacle.Attach(this);
     }
 
     private void ImpactObstacle(Obstacle obstacle) {
-        targetScale -= Vector3.one * obstacle.transform.localScale.magnitude / 5;
+        targetScale -= Vector3.one * Mathf.Sqrt(obstacle.transform.localScale.magnitude) / 1;
         if (targetScale.x < minScale) {
             targetScale = Vector3.one * minScale;
         }
