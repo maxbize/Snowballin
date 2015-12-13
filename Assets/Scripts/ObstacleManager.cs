@@ -7,6 +7,8 @@ public class ObstacleManager : MonoBehaviour {
     // Set in editor
     public List<GameObject> obstaclePrefabs;
     public SlopeSliceGenerator sliceGen;
+    public GameObject rockPrefab;
+    public Player player;
 
     private int numScriptedSlices = 0; // Gen the same obstacle for all slices
     private int scriptIdx; // Which prefab we're generating
@@ -33,6 +35,9 @@ public class ObstacleManager : MonoBehaviour {
             }
             for (int i = 0; i < 3; i++) {
                 CreateObstacle(obstaclePrefabs[Random.Range(0, obstaclePrefabs.Count)], Random.Range(1, 4), slice);
+                if (player.transform.localScale.x > 1) {
+                    CreateObstacle(rockPrefab, 1, slice); // Spawn a small rock as well to help the player out
+                }
             }
         } else {
             numScriptedSlices--;

@@ -85,7 +85,7 @@ public class Player : MonoBehaviour {
     }
 
     private void AbsorbObstacle(Obstacle obstacle) {
-        targetScale += Vector3.one * Mathf.Sqrt(obstacle.transform.localScale.magnitude) / 5;
+        targetScale += Vector3.one * Mathf.Sqrt(obstacle.transform.localScale.magnitude) / 10;
         obstacle.Attach(this);
     }
 
