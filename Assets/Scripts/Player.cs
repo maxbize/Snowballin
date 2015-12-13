@@ -15,6 +15,7 @@ public class Player : MonoBehaviour {
     public SlopeManager slopeManager;
     public float growthRate;
     public ParticleSystem snowTrail;
+    public GameObject impactPrefab;
 
     public Vector3 targetScale { get; private set; }
 
@@ -91,6 +92,7 @@ public class Player : MonoBehaviour {
     }
 
     private void ImpactObstacle(Obstacle obstacle) {
+        Instantiate(impactPrefab, transform.position, Quaternion.identity);
         targetScale -= Vector3.one * Mathf.Sqrt(obstacle.transform.localScale.magnitude) / 1;
         if (targetScale.x < minScale) {
             targetScale = Vector3.one * minScale;

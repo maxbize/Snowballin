@@ -28,7 +28,6 @@ public class Obstacle : MonoBehaviour {
         originalScale = transform.localScale.magnitude;
         originalDistance = (player.transform.position - transform.position).magnitude * 0.8f;
         transform.parent = player.transform;
-        GetComponent<Collider>().enabled = false;
         originalPlayerScale = player.targetScale;
     }
 
@@ -45,6 +44,7 @@ public class Obstacle : MonoBehaviour {
     // We've detached or been hit by something smaller
     public void Blast(float playerVel) {
         Invoke("Die", 5);
+        GetComponent<Collider>().enabled = false;
         Vector3 detachedVel = Random.onUnitSphere;
         rb.angularVelocity = detachedVel * 2;
         if (detachedVel.y < 0) {
