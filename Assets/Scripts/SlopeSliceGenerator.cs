@@ -154,9 +154,9 @@ public class SlopeSliceGenerator : MonoBehaviour {
 
     // Noise generator that returns height when given world coordinates
     public float heightFunction(float x, float z) {
-        float period = 30;
+        float period = 40;
         x = x / period;
         z = z / period;
-        return Mathf.PerlinNoise(x, z) * 5 + UnityEngine.Random.Range(0f, 0.5f) + (x + z) / 10;
+        return Mathf.PerlinNoise(x, z) * 10 + UnityEngine.Random.Range(0f, 0.5f) + (x + z) / 10;
     }
 }

@@ -22,7 +22,7 @@ public class CameraManager : MonoBehaviour {
         offset *= focus.transform.localScale.magnitude / (Mathf.Tan(Camera.main.fieldOfView / 2 * Mathf.Deg2Rad) * viewScaler);
         transform.position = focus.transform.position + offset;
 
-        float cameraAngle = 1f * focus.transform.localScale.magnitude + 15;
+        float cameraAngle = 0.8f * focus.transform.localScale.magnitude + 20;
         transform.rotation = Quaternion.Euler(cameraAngle, 0, 0);
     }
 }

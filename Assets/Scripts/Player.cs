@@ -16,12 +16,14 @@ public class Player : MonoBehaviour {
     public float growthRate;
     public ParticleSystem snowTrail;
     public GameObject impactPrefab;
+    public float invulnTime;
 
     public Vector3 targetScale { get; private set; }
 
     private Rigidbody rb;
     private bool grounded = false;
     private float minScale;
+    private float invulnTimer = 0;
 
 	// Use this for initialization
 	void Start () {
@@ -38,6 +40,7 @@ public class Player : MonoBehaviour {
         CheckGrounded();
         Move();
         transform.localScale += (targetScale.magnitude - transform.localScale.magnitude) / 10 * Vector3.one;
+        invulnTimer -= Time.deltaTime;
     }
 
     private void Grow() {
@@ -91,7 +94,10 @@ public class Player : MonoBehaviour {
 
     private void ImpactObstacle(Obstacle obstacle) {
         Instantiate(impactPrefab, transform.position, Quaternion.identity);
-        targetScale *= 0.8f;
+        if (invulnTimer <= 0) {
+            targetScale *= 0.9f;
+        }
+        invulnTimer = invulnTime; // Being nice :)
         if (targetScale.x < minScale) {
             targetScale = Vector3.one * minScale;
         }
