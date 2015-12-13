@@ -31,9 +31,9 @@ public class SlopeManager : MonoBehaviour {
         // Check if we reached a new slice and need to generate the next ones
         if (playerSlice != player.currentSlice) {
             playerSlice = player.currentSlice;
-            int recursion = Mathf.CeilToInt(playerRb.velocity.magnitude / 8);
+            int recursion = Mathf.Clamp(Mathf.CeilToInt(playerRb.velocity.magnitude / 8), 2, 5);
             GenSurroundingSlices(playerSlice.pos, recursion);
-            Debug.Log("Generated at player speed " + playerRb.velocity.magnitude + " with recursion " + recursion);
+            //Debug.Log("Generated at player speed " + playerRb.velocity.magnitude + " with recursion " + recursion);
         }
     }
 

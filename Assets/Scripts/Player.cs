@@ -92,7 +92,7 @@ public class Player : MonoBehaviour {
         if (targetScale.x < minScale) {
             targetScale = Vector3.one * minScale;
         }
-        obstacle.Blast();
+        obstacle.Blast(rb.velocity.magnitude);
         foreach (Obstacle childObstacle in GetComponentsInChildren<Obstacle>()) {
             childObstacle.CheckDetach();
         }
