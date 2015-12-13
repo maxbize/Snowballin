@@ -17,7 +17,11 @@ public class Obstacle : MonoBehaviour {
 	// Update is called once per frame
     void Update() {
         if (player != null) {
-            transform.localScale = originalScale / transform.parent.localScale.magnitude;
+            Vector3 newScale = originalScale;
+            newScale.x /= transform.parent.localScale.x;
+            newScale.y /= transform.parent.localScale.y;
+            newScale.z /= transform.parent.localScale.z;
+            transform.localScale = newScale;
             transform.position = player.transform.position + (transform.position - player.transform.position).normalized * originalDistance;
         }
     }
