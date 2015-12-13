@@ -8,6 +8,10 @@ public class MenuManager : MonoBehaviour {
     public GameObject gui;
     public GameObject controlsUi;
 
+    // Yeah... let's just throw the kitchen sink in here... 3 hours to go til submission!!!
+    private bool gameStarted = false;
+    private bool gameEnded = false;
+
 	// Use this for initialization
 	void Start () {
 	
@@ -15,14 +19,19 @@ public class MenuManager : MonoBehaviour {
 	
 	// Update is called once per frame
 	void Update () {
-        if (player.activeSelf) {
-            gameObject.SetActive(false);
-        }
-        if (Input.GetKeyDown(KeyCode.RightArrow)) {
-            player.SetActive(true);
-            gui.SetActive(false);
-        } else if (Input.GetKeyDown(KeyCode.LeftArrow)) {
-            controlsUi.SetActive(!controlsUi.activeSelf);
+        if (!gameStarted) {
+            if (Input.GetKeyDown(KeyCode.RightArrow)) {
+                player.SetActive(true);
+                gui.SetActive(false);
+            } else if (Input.GetKeyDown(KeyCode.LeftArrow)) {
+                controlsUi.SetActive(!controlsUi.activeSelf);
+            }
+        } else if (gameEnded) {
+
         }
 	}
+
+    public void HandleVictory() {
+        gameEnded = true;
+    }
 }

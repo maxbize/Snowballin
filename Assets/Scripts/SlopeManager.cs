@@ -9,6 +9,7 @@ public class SlopeManager : MonoBehaviour {
     public GameObject player;
     public ObstacleManager obstacleManager;
     public int minRecursion;
+    public MenuManager menuManager;
 
     private SlopeSlice playerSlice;
     public Vector3 toGround { get; private set; } // This doesn't really belong here...
@@ -16,14 +17,17 @@ public class SlopeManager : MonoBehaviour {
     private Queue<SlopeSlice> slices = new Queue<SlopeSlice>();
     private Dictionary<Int2, SlopeSlice> sliceMap = new Dictionary<Int2, SlopeSlice>();
     private Rigidbody playerRb;
+    private bool endGame = false;
+    private Player playerScript;
 
 	// Use this for initialization
 	void Start () {
         toGround = (Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle + 90, 0, 0) * Vector3.forward).normalized;
         alongGround = (Quaternion.Euler(FindObjectOfType<SlopeSliceGenerator>().slopeAngle, 0, 0) * Vector3.forward).normalized;
         playerRb = player.GetComponent<Rigidbody>();
+        playerScript = player.GetComponent<Player>();
 
-        GenSlice(new Int2(0, 0));
+        GenSlice(new Int2(0, 0), false);
 	}
 	
 	// Update is called once per frame
@@ -37,6 +41,13 @@ public class SlopeManager : MonoBehaviour {
             GenSurroundingSlices(playerSlice.pos, recursion);
             //Debug.Log("Generated at player speed " + playerRb.velocity.magnitude + " with recursion " + recursion);
         }
+
+        if (playerScript.targetScale.x > playerScript.maxScale * 0.95f) {
+            endGame = true;
+            if (playerSlice.GetComponentsInChildren<Obstacle>().Length == 0) {
+                menuManager.HandleVictory();
+            }
+        }
     }
 
     private void GenSurroundingSlices(Int2 origin, int recursion) {
@@ -44,15 +55,14 @@ public class SlopeManager : MonoBehaviour {
             return;
         }
         if (FindSlice(origin + Int2.front) == null) {
-            GenSlice(origin + Int2.front);
+            GenSlice(origin + Int2.front, !endGame);
         }
         if (FindSlice(origin + Int2.right) == null) {
-            GenSlice(origin + Int2.right);
+            GenSlice(origin + Int2.right, !endGame);
         }
         if (FindSlice(origin + Int2.left) == null) {
-            GenSlice(origin + Int2.left);
+            GenSlice(origin + Int2.left, !endGame);
         }
-
         
         // Easier to traverse graph if you delay recursion
         GenSurroundingSlices(origin + Int2.right, recursion - 1);
@@ -61,7 +71,7 @@ public class SlopeManager : MonoBehaviour {
     }
 
     // pos just needs to be somewhere on the slice. Generates a slice if none found
-    private void GenSlice(Int2 pos) {
+    private void GenSlice(Int2 pos, bool addObstacles) {
         SlopeSlice oldestSlice = null;
         if (slices.Count > 0) {
             oldestSlice = slices.Peek();
@@ -78,7 +88,7 @@ public class SlopeManager : MonoBehaviour {
         sliceMap[pos] = newSlice;
         newSlice.pos = pos;
 
-        if (pos.x != 0 || pos.z != 0) {
+        if (addObstacles) {
             obstacleManager.HandleNewSlice(newSlice);
         }
     }
