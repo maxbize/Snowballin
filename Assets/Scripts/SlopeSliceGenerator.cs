@@ -41,6 +41,8 @@ public class SlopeSliceGenerator : MonoBehaviour {
         Mesh mesh = new Mesh();
         mf.mesh = mesh;
 
+        slice.transform.position = calcSliceOrigin(leftSlice, backSlice, rightSlice);
+
         Vector3[] verts = MakeVertices(numColumns, numRows, slice, leftSlice, backSlice, rightSlice);
         int[] tris = MakeTris(verts, numColumns, numRows);
         verts = unshareVerts(tris, verts);
@@ -52,7 +54,6 @@ public class SlopeSliceGenerator : MonoBehaviour {
         slice.GetComponent<MeshCollider>().sharedMesh = mesh;
 
         slice.transform.rotation = Quaternion.Euler(new Vector3(slopeAngle, 0, 0));
-        slice.transform.position = calcSliceOrigin(leftSlice, backSlice, rightSlice);
 
         // Set slice position and target
         slice.GetComponent<LerpToTarget>().target = slice.transform.position;
@@ -66,7 +67,7 @@ public class SlopeSliceGenerator : MonoBehaviour {
         for (int i = 0; i < verts.Length; i++) {
             float x = vertexWidthSpacing * (i % numColumns);
             float z = vertexLengthSpacing * (i / numColumns);
-            Vector3 vert = new Vector3(x, UnityEngine.Random.Range(0f, 0.5f), z);
+            Vector3 vert = new Vector3(x, heightFunction (thisSlice.transform.position.x + x, thisSlice.transform.position.z + z), z);
 
             // Check for any edges
             if (i % numColumns == 0) { // Left edge
@@ -149,5 +150,13 @@ public class SlopeSliceGenerator : MonoBehaviour {
             uvs[i] = Vector2.zero;
         }
         return uvs;
+    }
+
+    // Noise generator that returns height when given world coordinates
+    public float heightFunction(float x, float z) {
+        float period = 20;
+        x = x / period;
+        z = z / period;
+        return Mathf.PerlinNoise(x, z) * 5 + UnityEngine.Random.Range(0f, 0.5f) + (x + z) / 10;
     }
 }

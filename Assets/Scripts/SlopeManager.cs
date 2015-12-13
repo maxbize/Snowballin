@@ -64,7 +64,7 @@ public class SlopeManager : MonoBehaviour {
         SlopeSlice oldestSlice = null;
         if (slices.Count > 0) {
             oldestSlice = slices.Peek();
-            if ((oldestSlice.transform.position - player.transform.position).magnitude > sliceGen.sliceLength * 1.5f) {
+            if (oldestSlice.transform.position.z - player.transform.position.z > sliceGen.sliceLength * 1.5f) {
                 slices.Dequeue();
                 sliceMap.Remove(oldestSlice.pos);
                 obstacleManager.HandleRecycledSlice(oldestSlice);

@@ -52,8 +52,8 @@ public class ObstacleManager : MonoBehaviour {
         obstacle.transform.parent = slice.transform;
         Vector3 pos = Vector3.zero;
         pos.x = Random.Range(0f, sliceGen.sliceWidth);
-        pos.y = 1f / 2f;
         pos.z = Random.Range(0f, sliceGen.sliceLength);
+        pos.y += sliceGen.heightFunction(pos.x + slice.transform.position.x, pos.z + slice.transform.position.z);
         obstacle.transform.localPosition = pos;
         obstacle.transform.localScale *= scale;
         obstacle.transform.rotation = Quaternion.Euler(0, Random.Range(0, 360), 0);
