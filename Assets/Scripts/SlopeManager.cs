@@ -55,9 +55,9 @@ public class SlopeManager : MonoBehaviour {
 
         
         // Easier to traverse graph if you delay recursion
-        GenSurroundingSlices(origin + Int2.front, recursion - 1);
         GenSurroundingSlices(origin + Int2.right, recursion - 1);
         GenSurroundingSlices(origin + Int2.left, recursion - 1);
+        GenSurroundingSlices(origin + Int2.front, recursion - 1);
     }
 
     // pos just needs to be somewhere on the slice. Generates a slice if none found

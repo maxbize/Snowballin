@@ -28,4 +28,8 @@ public class Int2 {
         Int2 other = obj as Int2;
         return other != null && other.x == this.x && other.z == this.z;
     }
+
+    public override string ToString() {
+        return string.Format("x: {0}, z: {1}", x, z);
+    }
 }
