@@ -6,8 +6,9 @@ public class SlopeManager : MonoBehaviour {
 
     // Set in Editor
     public SlopeSliceGenerator sliceGen;
-    public Player player;
+    public GameObject player;
     public ObstacleManager obstacleManager;
+    public int minRecursion;
 
     private SlopeSlice playerSlice;
     public Vector3 toGround { get; private set; } // This doesn't really belong here...
@@ -32,7 +33,7 @@ public class SlopeManager : MonoBehaviour {
         SlopeSlice slice = FindSlice(player.transform.position, 100);
         if (slice != null && playerSlice != slice) {
             playerSlice = slice;
-            int recursion = Mathf.Clamp(Mathf.CeilToInt(playerRb.velocity.magnitude / 8), 2, 5);
+            int recursion = Mathf.Clamp(Mathf.CeilToInt(playerRb.velocity.magnitude / 8), minRecursion, 5);
             GenSurroundingSlices(playerSlice.pos, recursion);
             //Debug.Log("Generated at player speed " + playerRb.velocity.magnitude + " with recursion " + recursion);
         }
@@ -83,12 +84,8 @@ public class SlopeManager : MonoBehaviour {
     }
 
     public SlopeSlice FindSlice(Vector3 origin, float distance) {
-        Debug.DrawRay(origin, toGround * distance, Color.red);
-        Debug.DrawRay(origin, -1 * (toGround * distance), Color.blue);
         RaycastHit hit;
         if (Physics.Raycast(origin, toGround, out hit, distance)) {
-            return hit.transform.GetComponent<SlopeSlice>();
-        } else if (Physics.Raycast(origin, -toGround, out hit)) {
             return hit.transform.GetComponent<SlopeSlice>();
         }
         return null;
