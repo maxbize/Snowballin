@@ -37,7 +37,7 @@ public class Player : MonoBehaviour {
 
     private void Grow() {
         targetScale += Vector3.one * growthRate * Time.deltaTime;
-        transform.localScale += (targetScale - transform.localScale).magnitude / 10 * Vector3.one;
+        transform.localScale += (targetScale.magnitude - transform.localScale.magnitude) / 10 * Vector3.one;
     }
 
     private void CheckGrounded() {
@@ -77,13 +77,17 @@ public class Player : MonoBehaviour {
 
     private void AbsorbObstacle(Obstacle obstacle) {
         targetScale += Vector3.one * obstacle.transform.localScale.magnitude / 10;
-        obstacle.Attach(gameObject);
+        obstacle.Attach(this);
     }
 
     private void ImpactObstacle(Obstacle obstacle) {
         targetScale -= Vector3.one * obstacle.transform.localScale.magnitude / 5;
-        if (transform.localScale.x < minScale) {
-            transform.localScale = Vector3.one * minScale;
+        if (targetScale.x < minScale) {
+            targetScale = Vector3.one * minScale;
         }
+        foreach (Obstacle childObstacle in GetComponentsInChildren<Obstacle>()) {
+            childObstacle.CheckDetach();
+        }
+        rb.velocity /= 2;
     }
 }

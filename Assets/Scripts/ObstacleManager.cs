@@ -21,6 +21,7 @@ public class ObstacleManager : MonoBehaviour {
         GameObject obstacle = (GameObject)Instantiate(obstaclePrefab);
         obstacle.transform.parent = slice.transform;
         obstacle.transform.localPosition = Vector3.up;
+        obstacle.transform.localScale *= Random.Range(1, 3);
     }
 
     // Clear all obstacles when recycling
