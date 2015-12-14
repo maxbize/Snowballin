@@ -55,7 +55,7 @@ public class Player : MonoBehaviour {
     }
 
     private void CheckGrounded() {
-        SlopeSlice slice = slopeManager.FindSlice(transform.position, transform.localScale.y / 2 + 0.1f);
+        SlopeSlice slice = slopeManager.FindSlice(transform.position, transform.localScale.y / 1.9f);
         if (slice == null) {
             grounded = false;
             snowTrail.enableEmission = false;
@@ -107,7 +107,7 @@ public class Player : MonoBehaviour {
         invulnTimer = invulnTime; // Being nice :)
         obstacle.Blast(rb.velocity.magnitude);
         foreach (Obstacle childObstacle in GetComponentsInChildren<Obstacle>()) {
-            childObstacle.CheckDetach();
+            childObstacle.CheckDetach(false);
         }
         rb.velocity /= 2;
     }

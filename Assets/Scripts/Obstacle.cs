@@ -37,8 +37,8 @@ public class Obstacle : MonoBehaviour {
 
 
     // Detach if the player lost more scale then when we attached
-    public void CheckDetach() {
-        if (player.targetScale.magnitude < originalPlayerScale.magnitude) {
+    public void CheckDetach(bool force) {
+        if (player.targetScale.magnitude < originalPlayerScale.magnitude || force) {
             Blast(player.GetComponent<Rigidbody>().velocity.magnitude);
             transform.parent = null;
             player = null;
