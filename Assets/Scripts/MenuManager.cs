@@ -20,11 +20,13 @@ public class MenuManager : MonoBehaviour {
     private int numCrystals = 0;
     private int numTrees = 0;
     private float blastSpeed;
+    private Player playerScript;
 
 	// Use this for initialization
 	void Start () {
         mainMenuUi.SetActive(true);
         endGameUi.SetActive(false);
+        playerScript = player.GetComponent<Player>();
 	}
 	
 	// Update is called once per frame
@@ -66,6 +68,7 @@ public class MenuManager : MonoBehaviour {
             }
             next.CheckDetach(true);
             Invoke("BlastNext", blastSpeed);
+            playerScript.PlayGrabSound();
         } else {
             allObstaclesBlasted = true;
             Debug.Log("All obstacles blasted");

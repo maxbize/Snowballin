@@ -106,11 +106,11 @@ public class Player : MonoBehaviour {
     private void AbsorbObstacle(Obstacle obstacle) {
         targetScale += Vector3.one * Mathf.Sqrt(obstacle.transform.localScale.magnitude) / 10;
         obstacle.Attach(this);
-        grabSFX.Play();
+        PlayGrabSound();
     }
 
     private void ImpactObstacle(Obstacle obstacle) {
-        thumpSFX.Play();
+        PlayBlastSound();
         ((GameObject)Instantiate(impactPrefab, transform.position, Quaternion.identity)).transform.localScale = transform.localScale / 4;
         if (invulnTimer <= 0) {
             targetScale *= 0.9f;
@@ -121,5 +121,15 @@ public class Player : MonoBehaviour {
             childObstacle.CheckDetach(false);
         }
         rb.velocity /= 2;
+    }
+
+    public void PlayBlastSound() {
+        thumpSFX.pitch = Random.Range(0.8f, 1.2f);
+        thumpSFX.Play();
+    }
+
+    public void PlayGrabSound() {
+        grabSFX.pitch = Random.Range(0.8f, 1.2f);
+        grabSFX.Play();
     }
 }
