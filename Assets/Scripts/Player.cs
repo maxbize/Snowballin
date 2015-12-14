@@ -113,7 +113,7 @@ public class Player : MonoBehaviour {
         PlayBlastSound();
         ((GameObject)Instantiate(impactPrefab, transform.position, Quaternion.identity)).transform.localScale = transform.localScale / 4;
         if (invulnTimer <= 0) {
-            targetScale *= 0.9f;
+            targetScale *= 0.8f;
         }
         invulnTimer = invulnTime; // Being nice :)
         obstacle.Blast(rb.velocity.magnitude);
