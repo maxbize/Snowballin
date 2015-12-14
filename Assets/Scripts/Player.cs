@@ -19,6 +19,9 @@ public class Player : MonoBehaviour {
     public float invulnTime;
     public float maxScale;
     public float minScale;
+    public AudioSource groundSFX;
+    public AudioSource grabSFX;
+    public AudioSource thumpSFX;
 
     public Vector3 targetScale { get; private set; }
 
@@ -55,13 +58,19 @@ public class Player : MonoBehaviour {
     }
 
     private void CheckGrounded() {
-        SlopeSlice slice = slopeManager.FindSlice(transform.position, transform.localScale.y / 1.9f);
+        SlopeSlice slice = slopeManager.FindSlice(transform.position, transform.localScale.y / 1.5f);
         if (slice == null) {
+            if (grounded) {
+                groundSFX.Pause();
+                snowTrail.enableEmission = false;
+            }
             grounded = false;
-            snowTrail.enableEmission = false;
         } else {
+            if (!grounded) {
+                snowTrail.enableEmission = true;
+                groundSFX.Play();
+            }
             grounded = true;
-            snowTrail.enableEmission = true;
         }
     }
 
@@ -97,9 +106,11 @@ public class Player : MonoBehaviour {
     private void AbsorbObstacle(Obstacle obstacle) {
         targetScale += Vector3.one * Mathf.Sqrt(obstacle.transform.localScale.magnitude) / 10;
         obstacle.Attach(this);
+        grabSFX.Play();
     }
 
     private void ImpactObstacle(Obstacle obstacle) {
+        thumpSFX.Play();
         ((GameObject)Instantiate(impactPrefab, transform.position, Quaternion.identity)).transform.localScale = transform.localScale / 4;
         if (invulnTimer <= 0) {
             targetScale *= 0.9f;

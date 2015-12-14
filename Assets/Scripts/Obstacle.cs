@@ -47,6 +47,7 @@ public class Obstacle : MonoBehaviour {
 
     // We've detached or been hit by something smaller
     public void Blast(float playerVel) {
+        GetComponent<Collider>().enabled = false;
         Invoke("Die", 10);
         Vector3 detachedVel = Random.onUnitSphere;
         rb.angularVelocity = detachedVel * 2;
@@ -61,7 +62,6 @@ public class Obstacle : MonoBehaviour {
         detachedVel *= Mathf.Clamp(playerVel / 5, 1, 10);
         rb.velocity = detachedVel;
         rb.isKinematic = false;
-        GetComponent<Collider>().enabled = false;
     }
 
     private void Die() {
