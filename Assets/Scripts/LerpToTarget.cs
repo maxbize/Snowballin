@@ -18,7 +18,7 @@ public class LerpToTarget : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         Vector3 toTarget = target - transform.position;
-        transform.position += toTarget * lerpRate;
+        transform.position += toTarget * lerpRate * Mathf.Clamp(Time.deltaTime, 0, 0.1f);
         if (toTarget.magnitude < threshold) {
             transform.position = target;
         }

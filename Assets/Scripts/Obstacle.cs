@@ -18,9 +18,9 @@ public class Obstacle : MonoBehaviour {
     void Update() {
         if (player != null) {
             Vector3 newScale = originalScale;
-            newScale.x /= transform.parent.localScale.x;
-            newScale.y /= transform.parent.localScale.y;
-            newScale.z /= transform.parent.localScale.z;
+            newScale.x /= player.transform.localScale.x;
+            newScale.y /= player.transform.localScale.y;
+            newScale.z /= player.transform.localScale.z;
             transform.localScale = newScale;
             transform.position = player.transform.position + (transform.position - player.transform.position).normalized * originalDistance;
         }
@@ -32,7 +32,9 @@ public class Obstacle : MonoBehaviour {
         originalDistance = (player.transform.position - transform.position).magnitude - transform.localScale.magnitude / 5;
         transform.parent = player.transform;
         originalPlayerScale = player.targetScale;
-        GetComponent<Collider>().enabled = false;
+        foreach (Collider collider in GetComponentsInChildren<Collider>()) {
+            collider.enabled = false;
+        }
     }
 
 
